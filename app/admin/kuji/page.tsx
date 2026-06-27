@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/guards";
 
-export default function AdminKujiPage() {
+export default async function AdminKujiPage() {
+  await requireAdmin();
   return (
     <AdminShell>
       <span className="badge">KUJI ADMIN</span>

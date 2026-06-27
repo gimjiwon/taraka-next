@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/guards";
 
-export default function AdminPage() {
+export default async function AdminPage() {
+  await requireAdmin();
   return (
     <AdminShell>
       <span className="badge">ADMIN DASHBOARD</span>

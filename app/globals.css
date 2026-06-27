@@ -100,3 +100,6 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 .glowPrize { margin: 24px auto; width: min(360px, 90%); min-height: 220px; display: grid; place-items: center; border-radius: 30px; background: radial-gradient(circle, rgba(255,255,255,.95), rgba(255,244,214,.65) 42%, transparent 70%); color: #111827; animation: prizeRise .76s ease both; }
 @keyframes prizeRise { from { opacity: 0; transform: translateY(30px) scale(.92); filter: blur(5px); } to { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); } }
 @media (max-width: 860px) { .heroGrid, .grid2, .grid3, .adminShell { grid-template-columns: 1fr; } .adminSidebar { position: relative; height: auto; } .menu { display: none; } .ticketGrid { grid-template-columns: repeat(5, 1fr); } }
+.noticeText { margin: 0; padding: 12px 14px; border-radius: 16px; background: #fff7ed; border: 1px solid #fed7ca; color: #c2410c; font-weight: 900; line-height: 1.5; }
+.errorText { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
+.btn:disabled { opacity: .6; cursor: not-allowed; }

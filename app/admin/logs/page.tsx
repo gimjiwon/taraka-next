@@ -1,6 +1,8 @@
 import { AdminShell } from "@/components/AdminShell";
+import { requireAdmin } from "@/lib/guards";
 
-export default function AdminLogsPage() {
+export default async function AdminLogsPage() {
+  await requireAdmin();
   return (
     <AdminShell>
       <h1>운영 로그</h1>
