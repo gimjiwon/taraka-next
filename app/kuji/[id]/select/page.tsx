@@ -1,12 +1,15 @@
+import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DeadlineTimer } from "@/components/DeadlineTimer";
 import { TicketGrid } from "@/components/TicketGrid";
-import { getDemoKuji, getDemoTickets } from "@/lib/mock-data";
+import { getActiveKujiWithTickets } from "@/lib/kujis";
 
 export default async function NumberSelectPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const kuji = getDemoKuji(id);
-  const tickets = getDemoTickets(kuji.id);
+  const data = await getActiveKujiWithTickets(id);
+  if (!data) notFound();
+
+  const { kuji, tickets } = data;
 
   return (
     <>

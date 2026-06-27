@@ -1,13 +1,17 @@
 import Link from "next/link";
+import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
 import { DeadlineTimer } from "@/components/DeadlineTimer";
-import { getDemoKuji } from "@/lib/mock-data";
+import { getActiveKujiBySlug } from "@/lib/kujis";
 import { formatWon } from "@/lib/format";
 
 export default async function PaymentPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ticket?: string }> }) {
   const { id } = await params;
   const { ticket } = await searchParams;
-  const kuji = getDemoKuji(id);
+  const data = await getActiveKujiBySlug(id);
+  if (!data) notFound();
+
+  const { kuji } = data;
 
   return (
     <>
@@ -30,7 +34,7 @@ export default async function PaymentPage({ params, searchParams }: { params: Pr
               <label className="card" style={{ boxShadow: "none" }}><input type="radio" name="pay" /> 카드 결제</label>
               <label className="card" style={{ boxShadow: "none" }}><input type="radio" name="pay" /> 계좌이체</label>
             </div>
-            <Link className="btn btnPrimary" style={{ marginTop: 20, width: "100%" }} href={`/kuji/${kuji.slug}/result?ticket=${ticket ?? "12"}`}>결제 완료 시뮬레이션</Link>
+            <Link className="btn btnPrimary" style={{ marginTop: 20, width: "100%" }} href={`/kuji/${kuji.slug}/result?ticket=${ticket ?? "1"}`}>결제 완료 시뮬레이션</Link>
           </section>
         </div>
       </main>

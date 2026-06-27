@@ -103,3 +103,8 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 .noticeText { margin: 0; padding: 12px 14px; border-radius: 16px; background: #fff7ed; border: 1px solid #fed7ca; color: #c2410c; font-weight: 900; line-height: 1.5; }
 .errorText { background: #fef2f2; border-color: #fecaca; color: #b91c1c; }
 .btn:disabled { opacity: .6; cursor: not-allowed; }
+.errorBadge { background: #fef2f2; color: #b91c1c; }
+.adminPrizeRows { display: grid; gap: 12px; }
+.adminPrizeRow { display: grid; grid-template-columns: 90px 1.1fr 110px 1.2fr auto; gap: 10px; align-items: end; padding: 12px; border: 1px solid #f3f4f6; border-radius: 18px; background: #fffaf7; }
+@media (max-width: 1100px) { .adminPrizeRow { grid-template-columns: 1fr 1fr; } }
+@media (max-width: 640px) { .adminPrizeRow { grid-template-columns: 1fr; } }
