@@ -11,21 +11,22 @@ export function LoginForm() {
   const [loading, setLoading] = useState(false);
 
   async function resolveEmail(value: string) {
-    const trimmed = value.trim();
-    if (trimmed.includes("@")) return trimmed.toLowerCase();
+    const trimmed = value.trim().toLowerCase();
+    if (trimmed.includes("@")) return trimmed;
 
     const response = await fetch("/api/auth/resolve-login", {
       method: "POST",
+      credentials: "include",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ identifier: trimmed })
     });
 
-    const result = await response.json();
+    const result = await response.json().catch(() => ({}));
     if (!response.ok || !result.ok || !result.email) {
       throw new Error(result.message || "가입된 아이디를 찾을 수 없습니다.");
     }
 
-    return String(result.email).toLowerCase();
+    return String(result.email).trim().toLowerCase();
   }
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -36,17 +37,29 @@ export function LoginForm() {
     try {
       const email = await resolveEmail(identifier);
       const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
+
+      // 핵심: 브라우저 Supabase 세션을 먼저 생성한다.
+      // 번호 예약/결제 API는 이 세션의 access_token을 Authorization 헤더로 받아 로그인 사용자를 확인한다.
+      const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
 
-      if (error) {
+      if (error || !data.session || !data.user) {
         throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
       }
 
+      // 서버 컴포넌트/관리자 페이지에서도 같은 세션을 읽을 수 있도록 서버 쿠키도 동기화한다.
+      // 실패해도 브라우저 세션은 이미 만들어졌으므로 구매 API는 정상 작동한다.
+      await fetch("/api/auth/login", {
+        method: "POST",
+        credentials: "include",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ identifier: email, password })
+      }).catch(() => null);
+
       const next = new URLSearchParams(window.location.search).get("next") || "/";
-      window.location.href = next;
+      window.location.assign(next);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
       setLoading(false);

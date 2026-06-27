@@ -42,7 +42,15 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ ok: false, message: "아이디 또는 비밀번호가 올바르지 않습니다." }, { status: 401 });
     }
 
-    return NextResponse.json({ ok: true, userId: data.user.id });
+    return NextResponse.json({
+      ok: true,
+      userId: data.user.id,
+      message: "로그인되었습니다."
+    }, {
+      headers: {
+        "Cache-Control": "no-store"
+      }
+    });
   } catch (error) {
     const message = error instanceof Error ? error.message : "로그인에 실패했습니다.";
     return NextResponse.json({ ok: false, message }, { status: 500 });
