@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const releaseSchema = z.object({
   orderId: z.string().uuid()
 });
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const user = await getRequestUser(request);
 
-  if (userError || !userData.user) {
+  if (!user) {
     return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
   }
 
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
     .from("orders")
     .select("id, user_id, status")
     .eq("id", parsed.data.orderId)
-    .eq("user_id", userData.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (!order) {
@@ -49,7 +48,7 @@ export async function POST(request: NextRequest) {
       .update({ status: "available", locked_by: null, locked_until: null })
       .in("id", ticketIds)
       .eq("status", "locked")
-      .eq("locked_by", userData.user.id);
+      .eq("locked_by", user.id);
   }
 
   await admin
@@ -58,7 +57,7 @@ export async function POST(request: NextRequest) {
     .eq("id", order.id);
 
   await admin.from("admin_logs").insert({
-    actor_id: userData.user.id,
+    actor_id: user.id,
     action: "ticket.release",
     detail: { order_id: order.id, ticket_ids: ticketIds }
   });

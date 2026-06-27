@@ -1,9 +1,6 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
-import { ResultReveal } from "@/components/ResultReveal";
-import { requireUser } from "@/lib/guards";
-import { getOrderResultItems } from "@/lib/orders";
+import { ResultPageClient } from "./ResultPageClient";
 
 export default async function ResultPage({
   params,
@@ -12,7 +9,6 @@ export default async function ResultPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ order?: string }>;
 }) {
-  const user = await requireUser();
   const { id } = await params;
   const { order: orderId } = await searchParams;
 
@@ -34,8 +30,5 @@ export default async function ResultPage({
     );
   }
 
-  const result = await getOrderResultItems(orderId, user.id);
-  if (!result || result.order.kujiSlug !== id) notFound();
-
-  return <ResultReveal items={result.items} orderId={result.order.id} />;
+  return <ResultPageClient orderId={orderId} expectedSlug={id} />;
 }

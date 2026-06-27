@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const revealSchema = z.object({
   orderId: z.string().uuid(),
@@ -9,10 +9,9 @@ const revealSchema = z.object({
 });
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const user = await getRequestUser(request);
 
-  if (userError || !userData.user) {
+  if (!user) {
     return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
   }
 
@@ -26,7 +25,7 @@ export async function POST(request: NextRequest) {
     .from("orders")
     .select("id, user_id, status")
     .eq("id", parsed.data.orderId)
-    .eq("user_id", userData.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (!order) {

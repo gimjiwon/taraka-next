@@ -1,25 +1,61 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import Link from "next/link";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { DeadlineTimer } from "@/components/DeadlineTimer";
 import { formatWon } from "@/lib/format";
 import type { PaymentOrderSummary } from "@/lib/orders";
 
-export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
+export function PaymentClient({ orderId, expectedSlug }: { orderId: string; expectedSlug: string }) {
+  const [order, setOrder] = useState<PaymentOrderSummary | null>(null);
+  const [loadingOrder, setLoadingOrder] = useState(true);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
+  async function getAuthHeaders(): Promise<Record<string, string>> {
+    const supabase = createSupabaseBrowserClient();
+    const { data } = await supabase.auth.getSession();
+    return data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {};
+  }
+
+  async function loadOrder() {
+    setLoadingOrder(true);
+    setError("");
+    try {
+      const authHeaders = await getAuthHeaders();
+      const response = await fetch(`/api/orders/summary?order=${encodeURIComponent(orderId)}`, {
+        credentials: "include",
+        headers: authHeaders
+      });
+      const result = await response.json();
+      if (!response.ok || !result.ok) throw new Error(result.message ?? "주문을 불러오지 못했습니다.");
+      if (result.order.kujiSlug !== expectedSlug) throw new Error("현재 쿠지의 주문 정보가 아닙니다.");
+      setOrder(result.order);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : "주문을 불러오지 못했습니다.");
+    } finally {
+      setLoadingOrder(false);
+    }
+  }
+
+  useEffect(() => {
+    void loadOrder();
+  }, [orderId]);
+
   async function completePayment() {
+    if (!order) return;
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch("/api/payment/complete", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ orderId: order.id })
       });
 
@@ -36,15 +72,17 @@ export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
   }
 
   async function cancelPayment() {
+    if (!order) return;
     setLoading(true);
     setMessage("");
     setError("");
 
     try {
+      const authHeaders = await getAuthHeaders();
       const response = await fetch("/api/tickets/release", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", ...authHeaders },
         body: JSON.stringify({ orderId: order.id })
       });
       const result = await response.json();
@@ -54,6 +92,34 @@ export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
       setError(cancelError instanceof Error ? cancelError.message : "예약 취소에 실패했습니다.");
       setLoading(false);
     }
+  }
+
+  if (loadingOrder) {
+    return (
+      <div className="container">
+        <section className="card">
+          <span className="badge">PAYMENT</span>
+          <h1>주문 확인 중...</h1>
+          <p className="lead">선택한 번호와 결제 정보를 불러오고 있습니다.</p>
+        </section>
+      </div>
+    );
+  }
+
+  if (!order) {
+    return (
+      <div className="container">
+        <section className="card">
+          <span className="badge">PAYMENT</span>
+          <h1>결제 정보를 불러오지 못했습니다</h1>
+          {error ? <p className="noticeText errorText">{error}</p> : null}
+          <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+            <button className="btn btnSecondary" type="button" onClick={loadOrder}>다시 시도</button>
+            <Link className="btn btnPrimary" href={`/login?next=/kuji/${expectedSlug}/select`}>다시 로그인</Link>
+          </div>
+        </section>
+      </div>
+    );
   }
 
   const isPaid = order.status === "paid";

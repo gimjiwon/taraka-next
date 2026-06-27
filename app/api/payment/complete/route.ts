@@ -1,17 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const completeSchema = z.object({
   orderId: z.string().uuid()
 });
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const user = await getRequestUser(request);
 
-  if (userError || !userData.user) {
+  if (!user) {
     return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
   }
 
@@ -25,7 +24,7 @@ export async function POST(request: NextRequest) {
     .from("orders")
     .select("id, user_id, kuji_id, status")
     .eq("id", parsed.data.orderId)
-    .eq("user_id", userData.user.id)
+    .eq("user_id", user.id)
     .maybeSingle();
 
   if (!order) {
@@ -59,7 +58,7 @@ export async function POST(request: NextRequest) {
   const now = Date.now();
   const invalidTicket = (tickets ?? []).find((ticket) => {
     const lockMs = ticket.locked_until ? new Date(ticket.locked_until).getTime() : 0;
-    return ticket.status !== "locked" || ticket.locked_by !== userData.user.id || lockMs < now;
+    return ticket.status !== "locked" || ticket.locked_by !== user.id || lockMs < now;
   });
 
   if (invalidTicket || (tickets ?? []).length !== ticketIds.length) {
@@ -68,7 +67,7 @@ export async function POST(request: NextRequest) {
       .update({ status: "available", locked_by: null, locked_until: null })
       .in("id", ticketIds)
       .eq("status", "locked")
-      .eq("locked_by", userData.user.id);
+      .eq("locked_by", user.id);
 
     await admin
       .from("orders")
@@ -80,7 +79,7 @@ export async function POST(request: NextRequest) {
 
   const { error: finalizeError } = await admin.rpc("finalize_paid_order", {
     p_order_id: order.id,
-    p_user_id: userData.user.id
+    p_user_id: user.id
   });
 
   if (finalizeError) {
@@ -90,7 +89,7 @@ export async function POST(request: NextRequest) {
   const { data: kuji } = await admin.from("kujis").select("slug").eq("id", order.kuji_id).maybeSingle();
 
   await admin.from("admin_logs").insert({
-    actor_id: userData.user.id,
+    actor_id: user.id,
     action: "order.paid",
     detail: { order_id: order.id, kuji_id: order.kuji_id, ticket_ids: ticketIds }
   });

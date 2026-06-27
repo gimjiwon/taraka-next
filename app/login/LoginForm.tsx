@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { FormEvent, useState } from "react";
+import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 export function LoginForm() {
   const [identifier, setIdentifier] = useState("");
@@ -9,22 +10,39 @@ export function LoginForm() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
+  async function resolveEmail(value: string) {
+    const trimmed = value.trim();
+    if (trimmed.includes("@")) return trimmed.toLowerCase();
+
+    const response = await fetch("/api/auth/resolve-login", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ identifier: trimmed })
+    });
+
+    const result = await response.json();
+    if (!response.ok || !result.ok || !result.email) {
+      throw new Error(result.message || "가입된 아이디를 찾을 수 없습니다.");
+    }
+
+    return String(result.email).toLowerCase();
+  }
+
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setMessage("");
     setLoading(true);
 
     try {
-      const response = await fetch("/api/auth/login", {
-        method: "POST",
-        credentials: "include",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier, password })
+      const email = await resolveEmail(identifier);
+      const supabase = createSupabaseBrowserClient();
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password
       });
 
-      const result = await response.json();
-      if (!response.ok || !result.ok) {
-        throw new Error(result.message || "로그인에 실패했습니다.");
+      if (error) {
+        throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
       }
 
       const next = new URLSearchParams(window.location.search).get("next") || "/";

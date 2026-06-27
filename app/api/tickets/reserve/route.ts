@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const reserveSchema = z.object({
   slug: z.string().trim().min(1),
@@ -75,10 +75,9 @@ async function releaseReservedTickets(admin: ReturnType<typeof createSupabaseAdm
 }
 
 export async function POST(request: NextRequest) {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
+  const user = await getRequestUser(request);
 
-  if (userError || !userData.user) {
+  if (!user) {
     return NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 });
   }
 
@@ -107,7 +106,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ message: "진행중인 쿠지를 찾을 수 없습니다." }, { status: 404 });
   }
 
-  await releaseUserPendingLocks(admin, userData.user.id, kuji.id);
+  await releaseUserPendingLocks(admin, user.id, kuji.id);
 
   const reservedTickets: Array<{ id: string; prize_id: string | null; ticket_no: number }> = [];
 
@@ -115,19 +114,19 @@ export async function POST(request: NextRequest) {
     const { data: reservedTicket, error: reserveError } = await admin.rpc("reserve_ticket", {
       p_kuji_id: kuji.id,
       p_ticket_no: no,
-      p_user_id: userData.user.id,
+      p_user_id: user.id,
       p_hold_seconds: 120
     });
 
     if (reserveError || !reservedTicket) {
-      await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), userData.user.id);
+      await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), user.id);
       const rawMessage = reserveError?.message ?? "번호 예약에 실패했습니다.";
       return NextResponse.json({ message: `${no}번: ${mapReserveError(rawMessage)}` }, { status: 409 });
     }
 
     const ticket = Array.isArray(reservedTicket) ? reservedTicket[0] : reservedTicket;
     if (!ticket?.id || !ticket?.prize_id) {
-      await releaseReservedTickets(admin, reservedTickets.map((reserved) => reserved.id), userData.user.id);
+      await releaseReservedTickets(admin, reservedTickets.map((reserved) => reserved.id), user.id);
       return NextResponse.json({ message: "예약된 번호 정보를 확인할 수 없습니다." }, { status: 500 });
     }
 
@@ -138,7 +137,7 @@ export async function POST(request: NextRequest) {
     .from("orders")
     .insert({
       order_no: makeOrderNo(),
-      user_id: userData.user.id,
+      user_id: user.id,
       kuji_id: kuji.id,
       amount: kuji.price * reservedTickets.length,
       status: "pending"
@@ -147,7 +146,7 @@ export async function POST(request: NextRequest) {
     .single();
 
   if (orderError || !order) {
-    await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), userData.user.id);
+    await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), user.id);
     return NextResponse.json({ message: orderError?.message ?? "주문 생성에 실패했습니다." }, { status: 500 });
   }
 
@@ -162,12 +161,12 @@ export async function POST(request: NextRequest) {
 
   if (itemError) {
     await admin.from("orders").update({ status: "cancelled" }).eq("id", order.id);
-    await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), userData.user.id);
+    await releaseReservedTickets(admin, reservedTickets.map((ticket) => ticket.id), user.id);
     return NextResponse.json({ message: itemError.message }, { status: 500 });
   }
 
   await admin.from("admin_logs").insert({
-    actor_id: userData.user.id,
+    actor_id: user.id,
     action: "ticket.reserve",
     detail: { kuji_id: kuji.id, slug: kuji.slug, ticket_nos: selectedTicketNos, order_id: order.id }
   });

@@ -1,8 +1,5 @@
 import Link from "next/link";
-import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
-import { requireUser } from "@/lib/guards";
-import { getOrderSummaryForUser } from "@/lib/orders";
 import { PaymentClient } from "./PaymentClient";
 
 export default async function PaymentPage({
@@ -12,7 +9,6 @@ export default async function PaymentPage({
   params: Promise<{ id: string }>;
   searchParams: Promise<{ order?: string; ticket?: string }>;
 }) {
-  const user = await requireUser();
   const { id } = await params;
   const { order: orderId } = await searchParams;
 
@@ -34,14 +30,11 @@ export default async function PaymentPage({
     );
   }
 
-  const order = await getOrderSummaryForUser(orderId, user.id);
-  if (!order || order.kujiSlug !== id) notFound();
-
   return (
     <>
       <SiteHeader />
       <main className="section">
-        <PaymentClient order={order} />
+        <PaymentClient orderId={orderId} expectedSlug={id} />
       </main>
     </>
   );
