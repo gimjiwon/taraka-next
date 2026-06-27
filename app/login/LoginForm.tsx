@@ -1,12 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 import { FormEvent, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 
 export function LoginForm() {
-  const router = useRouter();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [message, setMessage] = useState("");
@@ -18,33 +15,22 @@ export function LoginForm() {
     setLoading(true);
 
     try {
-      const resolveResponse = await fetch("/api/auth/resolve-login", {
+      const response = await fetch("/api/auth/login", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ identifier })
-      });
-      const resolved = await resolveResponse.json();
-
-      if (!resolveResponse.ok || !resolved.ok) {
-        throw new Error(resolved.message || "로그인 정보를 확인하지 못했습니다.");
-      }
-
-      const supabase = createSupabaseBrowserClient();
-      const { error } = await supabase.auth.signInWithPassword({
-        email: resolved.email,
-        password
+        body: JSON.stringify({ identifier, password })
       });
 
-      if (error) {
-        throw new Error("아이디 또는 비밀번호가 올바르지 않습니다.");
+      const result = await response.json();
+      if (!response.ok || !result.ok) {
+        throw new Error(result.message || "로그인에 실패했습니다.");
       }
 
       const next = new URLSearchParams(window.location.search).get("next") || "/";
-      router.replace(next);
-      router.refresh();
+      window.location.href = next;
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "로그인에 실패했습니다.");
-    } finally {
       setLoading(false);
     }
   }

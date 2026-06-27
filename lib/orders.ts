@@ -10,6 +10,7 @@ export type PaymentOrderSummary = {
   kujiSlug: string;
   kujiTitle: string;
   ticketNo: number | null;
+  ticketNos: number[];
   lockedUntil: string | null;
   createdAt: string;
 };
@@ -79,26 +80,34 @@ export async function getOrderSummaryForUser(orderId: string, userId: string): P
     .eq("id", order.kuji_id)
     .maybeSingle();
 
-  const { data: orderItem } = await admin
+  const { data: orderItems } = await admin
     .from("order_items")
     .select("ticket_id")
-    .eq("order_id", order.id)
-    .limit(1)
-    .maybeSingle();
+    .eq("order_id", order.id);
 
-  let ticketNo: number | null = null;
+  const ticketIds = [...new Set((orderItems ?? []).map((item) => item.ticket_id).filter(Boolean))];
+  let ticketNos: number[] = [];
   let lockedUntil: string | null = null;
 
-  if (orderItem?.ticket_id) {
-    const { data: ticket } = await admin
+  if (ticketIds.length) {
+    const { data: tickets } = await admin
       .from("kuji_tickets")
       .select("ticket_no, locked_until")
-      .eq("id", orderItem.ticket_id)
-      .maybeSingle();
+      .in("id", ticketIds);
 
-    ticketNo = typeof ticket?.ticket_no === "number" ? ticket.ticket_no : null;
-    lockedUntil = typeof ticket?.locked_until === "string" ? ticket.locked_until : null;
+    ticketNos = (tickets ?? [])
+      .map((ticket) => ticket.ticket_no)
+      .filter((ticketNo): ticketNo is number => typeof ticketNo === "number")
+      .sort((a, b) => a - b);
+
+    const lockTimes = (tickets ?? [])
+      .map((ticket) => ticket.locked_until)
+      .filter((value): value is string => typeof value === "string")
+      .sort();
+    lockedUntil = lockTimes[0] ?? null;
   }
+
+  const ticketNo = ticketNos[0] ?? null;
 
   return {
     id: order.id,
@@ -109,6 +118,7 @@ export async function getOrderSummaryForUser(orderId: string, userId: string): P
     kujiSlug: kuji?.slug ?? "",
     kujiTitle: kuji?.title ?? "삭제된 쿠지",
     ticketNo,
+    ticketNos,
     lockedUntil,
     createdAt: order.created_at
   };

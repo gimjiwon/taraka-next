@@ -18,6 +18,7 @@ export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
     try {
       const response = await fetch("/api/payment/complete", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id })
       });
@@ -42,6 +43,7 @@ export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
     try {
       const response = await fetch("/api/tickets/release", {
         method: "POST",
+        credentials: "include",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id })
       });
@@ -66,7 +68,8 @@ export function PaymentClient({ order }: { order: PaymentOrderSummary }) {
         <p className="lead">결제 제한 시간 안에 결제를 완료해야 선택한 번호가 확정됩니다.</p>
         <div className="statRow"><span>주문번호</span><strong>{order.orderNo}</strong></div>
         <div className="statRow"><span>쿠지</span><strong>{order.kujiTitle}</strong></div>
-        <div className="statRow"><span>선택 번호</span><strong>{order.ticketNo ?? "-"}번</strong></div>
+        <div className="statRow"><span>선택 번호</span><strong>{order.ticketNos.length ? `${order.ticketNos.join(", ")}번` : "-"}</strong></div>
+        <div className="statRow"><span>선택 수량</span><strong>{order.ticketNos.length || 1}개</strong></div>
         <div className="statRow"><span>결제 금액</span><strong>{formatWon(order.amount)}</strong></div>
         <div className="statRow"><span>주문 상태</span><strong>{statusLabel(order.status)}</strong></div>
         {isPending ? (
