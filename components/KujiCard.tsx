@@ -7,6 +7,7 @@ export function KujiCard({ kuji }: { kuji: Kuji }) {
 
   return (
     <article className="card">
+      {kuji.imageUrl ? <img src={kuji.imageUrl} alt="" className="kujiImage" /> : null}
       <span className="badge">진행중</span>
       <h3 style={{ marginTop: 14 }}>{kuji.title}</h3>
       <p className="muted" style={{ minHeight: 58 }}>{kuji.description}</p>

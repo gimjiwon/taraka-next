@@ -1,42 +1,47 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
-import { DeadlineTimer } from "@/components/DeadlineTimer";
-import { getActiveKujiBySlug } from "@/lib/kujis";
-import { formatWon } from "@/lib/format";
+import { requireUser } from "@/lib/guards";
+import { getOrderSummaryForUser } from "@/lib/orders";
+import { PaymentClient } from "./PaymentClient";
 
-export default async function PaymentPage({ params, searchParams }: { params: Promise<{ id: string }>; searchParams: Promise<{ ticket?: string }> }) {
+export default async function PaymentPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ order?: string; ticket?: string }>;
+}) {
+  const user = await requireUser();
   const { id } = await params;
-  const { ticket } = await searchParams;
-  const data = await getActiveKujiBySlug(id);
-  if (!data) notFound();
+  const { order: orderId } = await searchParams;
 
-  const { kuji } = data;
+  if (!orderId) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="section">
+          <div className="container">
+            <section className="card">
+              <span className="badge">PAYMENT</span>
+              <h1>결제할 주문이 없습니다</h1>
+              <p className="lead">번호 선택 화면에서 번호를 먼저 예약해주세요.</p>
+              <Link className="btn btnPrimary" href={`/kuji/${id}/select`}>번호 선택으로 돌아가기</Link>
+            </section>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  const order = await getOrderSummaryForUser(orderId, user.id);
+  if (!order || order.kujiSlug !== id) notFound();
 
   return (
     <>
       <SiteHeader />
       <main className="section">
-        <div className="container grid2">
-          <section className="card">
-            <span className="badge">PAYMENT</span>
-            <h1>결제</h1>
-            <p className="lead">결제 제한 시간 안에 결제를 완료해야 번호가 확정됩니다.</p>
-            <div className="statRow"><span>쿠지</span><strong>{kuji.title}</strong></div>
-            <div className="statRow"><span>선택 번호</span><strong>{ticket ?? "미선택"}번</strong></div>
-            <div className="statRow"><span>결제 금액</span><strong>{formatWon(kuji.price)}</strong></div>
-            <div className="statRow"><span>남은 결제 시간</span><strong><DeadlineTimer seconds={120} /></strong></div>
-          </section>
-          <section className="card">
-            <h2>결제 수단 선택</h2>
-            <div className="formGrid">
-              <label className="card" style={{ boxShadow: "none" }}><input type="radio" name="pay" defaultChecked /> 간편 결제</label>
-              <label className="card" style={{ boxShadow: "none" }}><input type="radio" name="pay" /> 카드 결제</label>
-              <label className="card" style={{ boxShadow: "none" }}><input type="radio" name="pay" /> 계좌이체</label>
-            </div>
-            <Link className="btn btnPrimary" style={{ marginTop: 20, width: "100%" }} href={`/kuji/${kuji.slug}/result?ticket=${ticket ?? "1"}`}>결제 완료 시뮬레이션</Link>
-          </section>
-        </div>
+        <PaymentClient order={order} />
       </main>
     </>
   );

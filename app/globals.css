@@ -108,3 +108,4 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 .adminPrizeRow { display: grid; grid-template-columns: 90px 1.1fr 110px 1.2fr auto; gap: 10px; align-items: end; padding: 12px; border: 1px solid #f3f4f6; border-radius: 18px; background: #fffaf7; }
 @media (max-width: 1100px) { .adminPrizeRow { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .adminPrizeRow { grid-template-columns: 1fr; } }
+.kujiImage { width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: 22px; border: 1px solid var(--line); background: #f9fafb; margin-bottom: 16px; }

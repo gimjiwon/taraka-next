@@ -1,6 +1,41 @@
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { SiteHeader } from "@/components/SiteHeader";
 import { ResultReveal } from "@/components/ResultReveal";
-import { demoResults } from "@/lib/mock-data";
+import { requireUser } from "@/lib/guards";
+import { getOrderResultItems } from "@/lib/orders";
 
-export default function ResultPage() {
-  return <ResultReveal items={demoResults} />;
+export default async function ResultPage({
+  params,
+  searchParams
+}: {
+  params: Promise<{ id: string }>;
+  searchParams: Promise<{ order?: string }>;
+}) {
+  const user = await requireUser();
+  const { id } = await params;
+  const { order: orderId } = await searchParams;
+
+  if (!orderId) {
+    return (
+      <>
+        <SiteHeader />
+        <main className="section">
+          <div className="container">
+            <section className="card">
+              <span className="badge">TAKARA RESULT</span>
+              <h1>결과를 볼 주문이 없습니다</h1>
+              <p className="lead">결제를 완료한 뒤 결과를 확인할 수 있습니다.</p>
+              <Link className="btn btnPrimary" href="/kuji">쿠지 목록으로</Link>
+            </section>
+          </div>
+        </main>
+      </>
+    );
+  }
+
+  const result = await getOrderResultItems(orderId, user.id);
+  if (!result || result.order.kujiSlug !== id) notFound();
+
+  return <ResultReveal items={result.items} orderId={result.order.id} />;
 }

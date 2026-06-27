@@ -18,6 +18,7 @@ export default async function KujiDetailPage({ params }: { params: Promise<{ id:
       <main className="section">
         <div className="container grid2">
           <section className="card">
+            {kuji.imageUrl ? <img src={kuji.imageUrl} alt="" className="kujiImage" /> : null}
             <span className="badge">KUJI DETAIL</span>
             <h1>{kuji.title}</h1>
             <p className="lead">{kuji.description || "등록된 쿠지 설명이 없습니다."}</p>

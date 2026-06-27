@@ -26,7 +26,7 @@ export default async function NumberSelectPage({ params }: { params: Promise<{ i
               <div style={{ fontSize: 32 }}><DeadlineTimer seconds={180} /></div>
             </div>
           </div>
-          <TicketGrid tickets={tickets} />
+          <TicketGrid tickets={tickets} kujiSlug={kuji.slug} />
         </div>
       </main>
     </>
