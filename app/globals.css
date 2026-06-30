@@ -159,3 +159,197 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 }
 @media (max-width: 1180px) { .adminPrizeRowWithImage { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 640px) { .adminPrizeRowWithImage { grid-template-columns: 1fr; } }
+
+/* TAKARA storefront design polish */
+.homeHero {
+  position: relative;
+  overflow: hidden;
+  padding: 86px 0 68px;
+  background:
+    radial-gradient(circle at 22% 18%, rgba(255, 122, 89, .20), transparent 34%),
+    radial-gradient(circle at 84% 24%, rgba(79, 70, 229, .15), transparent 30%),
+    linear-gradient(180deg, rgba(255,250,247,.88), rgba(255,247,237,.64));
+}
+.homeHero::before {
+  content: "";
+  position: absolute;
+  inset: auto -80px -120px -80px;
+  height: 220px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,.72), transparent);
+  transform: rotate(-3deg);
+}
+.homeHeroGrid {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1.05fr .95fr;
+  align-items: center;
+  gap: 48px;
+}
+.homeHeroCopy h1 {
+  font-size: clamp(52px, 7vw, 96px);
+  letter-spacing: -.09em;
+}
+.heroActions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 30px; }
+.heroMetricGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 34px;
+}
+.heroMetricGrid div {
+  min-height: 96px;
+  padding: 16px;
+  border: 1px solid rgba(229,231,235,.85);
+  border-radius: 24px;
+  background: rgba(255,255,255,.78);
+  box-shadow: 0 12px 30px rgba(31,41,55,.06);
+}
+.heroMetricGrid strong { display: block; font-size: 28px; font-weight: 1000; letter-spacing: -.06em; color: var(--dark); }
+.heroMetricGrid span { display: block; margin-top: 6px; color: var(--muted); font-weight: 900; font-size: 13px; }
+.heroShowcase {
+  position: relative;
+  min-height: 480px;
+  border-radius: 42px;
+  border: 1px solid rgba(255,255,255,.8);
+  background:
+    linear-gradient(150deg, rgba(255,255,255,.92), rgba(255,246,240,.74)),
+    radial-gradient(circle at 50% 28%, rgba(251,191,36,.24), transparent 38%);
+  box-shadow: 0 30px 90px rgba(31,41,55,.11);
+  overflow: hidden;
+}
+.treasureBox {
+  position: absolute;
+  left: 50%;
+  top: 48%;
+  transform: translate(-50%, -50%);
+  width: min(320px, 70%);
+  height: 230px;
+}
+.treasureLight {
+  position: absolute;
+  left: 50%;
+  top: 18%;
+  width: 240px;
+  height: 240px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(255,255,255,.94), rgba(251,191,36,.28) 42%, transparent 68%);
+  filter: blur(2px);
+  animation: pulseGlow 2.8s ease-in-out infinite;
+}
+.treasureLid {
+  position: absolute;
+  left: 50%;
+  top: 44px;
+  width: 240px;
+  height: 92px;
+  transform: translateX(-50%) rotate(-8deg);
+  transform-origin: bottom left;
+  border-radius: 90px 90px 26px 26px;
+  background: linear-gradient(135deg, #f97316, #fbbf24);
+  border: 4px solid #7c2d12;
+  box-shadow: 0 18px 24px rgba(124,45,18,.18);
+}
+.treasureBase {
+  position: absolute;
+  left: 50%;
+  bottom: 34px;
+  width: 280px;
+  height: 112px;
+  transform: translateX(-50%);
+  display: grid;
+  place-items: center;
+  border-radius: 24px 24px 38px 38px;
+  background: linear-gradient(135deg, #9a3412, #ea580c 50%, #fbbf24);
+  border: 4px solid #7c2d12;
+  color: white;
+  font-size: 30px;
+  font-weight: 1000;
+  letter-spacing: -.06em;
+}
+.flowCard {
+  position: absolute;
+  width: 190px;
+  padding: 16px;
+  border: 1px solid rgba(229,231,235,.9);
+  border-radius: 22px;
+  background: rgba(255,255,255,.86);
+  box-shadow: 0 16px 35px rgba(31,41,55,.10);
+  backdrop-filter: blur(10px);
+}
+.flowCard span { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 12px; background: var(--orange-soft); color: #c2410c; font-weight: 1000; }
+.flowCard strong { display: block; margin-top: 10px; font-size: 18px; }
+.flowCard small { display: block; margin-top: 5px; color: var(--muted); line-height: 1.45; font-weight: 800; }
+.floatingCard.one { left: 24px; top: 34px; }
+.floatingCard.two { right: 24px; top: 122px; }
+.floatingCard.three { left: 62px; bottom: 34px; }
+@keyframes pulseGlow { 0%, 100% { opacity: .72; transform: translate(-50%, -50%) scale(.96); } 50% { opacity: 1; transform: translate(-50%, -50%) scale(1.05); } }
+.sectionHead { display: flex; align-items: end; justify-content: space-between; gap: 18px; margin-bottom: 24px; }
+.emptyState { display: grid; gap: 12px; justify-items: start; }
+.softSection { background: rgba(255,255,255,.42); border-top: 1px solid rgba(229,231,235,.72); border-bottom: 1px solid rgba(229,231,235,.72); }
+.featureCard {
+  padding: 24px;
+  border: 1px solid var(--line);
+  border-radius: 28px;
+  background: white;
+  box-shadow: var(--shadow);
+}
+.featureCard span { display: inline-flex; padding: 7px 11px; border-radius: 999px; background: #eef2ff; color: #4f46e5; font-size: 13px; font-weight: 1000; }
+.featureCard h3 { margin-top: 16px; }
+.featureCard p { margin: 0; color: var(--muted); font-weight: 800; line-height: 1.65; }
+.kujiCard { padding: 0; overflow: hidden; transition: transform .18s ease, box-shadow .18s ease; }
+.kujiCard:hover { transform: translateY(-4px); box-shadow: 0 26px 70px rgba(31,41,55,.13); }
+.kujiThumbWrap { position: relative; overflow: hidden; background: #fff7ed; }
+.kujiThumb, .kujiThumbPlaceholder { width: 100%; aspect-ratio: 4 / 3; display: grid; place-items: center; object-fit: cover; }
+.kujiThumbPlaceholder { color: #c2410c; font-weight: 1000; font-size: 28px; letter-spacing: -.06em; background: radial-gradient(circle at 50% 36%, #fff, #fed7aa); }
+.kujiStatusBadge { position: absolute; left: 14px; top: 14px; padding: 7px 11px; border-radius: 999px; background: rgba(22, 163, 74, .92); color: white; font-size: 12px; font-weight: 1000; box-shadow: 0 10px 22px rgba(22,163,74,.22); }
+.kujiCardBody { padding: 20px; }
+.kujiDesc { min-height: 58px; line-height: 1.55; font-weight: 800; }
+.progressBlock { display: grid; gap: 8px; margin: 18px 0; }
+.progressTop { display: flex; justify-content: space-between; gap: 10px; color: var(--muted); font-size: 13px; font-weight: 1000; }
+.progressTop strong { color: var(--orange-dark); }
+.progressTrack { height: 10px; border-radius: 999px; background: #f3f4f6; overflow: hidden; }
+.progressTrack div { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--orange), #fbbf24); }
+.kujiMetaGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+.kujiMetaGrid div { padding: 13px; border: 1px solid #f3f4f6; border-radius: 18px; background: #fffaf7; }
+.kujiMetaGrid span { display: block; color: var(--muted); font-size: 12px; font-weight: 1000; }
+.kujiMetaGrid strong { display: block; margin-top: 4px; font-size: 17px; letter-spacing: -.04em; }
+.kujiCardActions { display: flex; gap: 10px; margin-top: 18px; }
+.kujiCardActions .btn { flex: 1; }
+.detailPage { padding-top: 56px; }
+.detailHero { display: grid; grid-template-columns: minmax(0, .95fr) minmax(0, 1.05fr); gap: 22px; align-items: stretch; }
+.detailImagePanel { padding: 16px; }
+.detailImage, .detailImagePlaceholder { width: 100%; height: 100%; min-height: 460px; object-fit: cover; border-radius: 24px; background: radial-gradient(circle at 50% 30%, #fff, #fed7aa); }
+.detailImagePlaceholder { display: grid; place-items: center; color: #c2410c; font-weight: 1000; font-size: 42px; letter-spacing: -.07em; }
+.detailInfoPanel { display: flex; flex-direction: column; justify-content: center; }
+.detailInfoPanel h1 { font-size: clamp(42px, 5.5vw, 76px); }
+.detailStats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 22px 0 6px; }
+.detailStats div { padding: 16px; border: 1px solid #f3f4f6; border-radius: 20px; background: #fffaf7; }
+.detailStats span { display: block; color: var(--muted); font-size: 13px; font-weight: 1000; }
+.detailStats strong { display: block; margin-top: 6px; font-size: 22px; letter-spacing: -.06em; }
+.largeProgress { margin-top: 20px; }
+.detailActions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 24px; }
+.revealHint { color: rgba(255,255,255,.78); font-weight: 900; }
+.resultTreasure { position: relative; width: 280px; height: 200px; margin: 22px auto 8px; }
+.resultBeam { position: absolute; left: 50%; top: 28%; width: 220px; height: 220px; transform: translate(-50%, -50%); background: radial-gradient(circle, rgba(255,255,255,.94), rgba(251,191,36,.36) 42%, transparent 72%); animation: pulseGlow 2.2s ease-in-out infinite; }
+.resultLid { position: absolute; z-index: 2; left: 50%; top: 46px; width: 210px; height: 76px; transform: translateX(-50%); transform-origin: 14% 100%; border-radius: 80px 80px 22px 22px; border: 4px solid #78350f; background: linear-gradient(135deg, #f97316, #fbbf24); }
+.openChest .resultLid { animation: chestOpen .72s ease both; }
+.readyChest .resultLid { animation: chestIdle 2.3s ease-in-out infinite; }
+.resultBase { position: absolute; z-index: 3; left: 50%; bottom: 22px; width: 242px; height: 92px; transform: translateX(-50%); display: grid; place-items: center; border-radius: 22px 22px 34px 34px; border: 4px solid #78350f; background: linear-gradient(135deg, #92400e, #ea580c 54%, #fbbf24); color: white; font-weight: 1000; letter-spacing: -.06em; }
+@keyframes chestOpen { from { transform: translateX(-50%) rotate(0deg); } to { transform: translateX(-50%) rotate(-24deg) translateY(-16px); } }
+@keyframes chestIdle { 0%, 100% { transform: translateX(-50%) rotate(0deg); } 50% { transform: translateX(-50%) rotate(-3deg) translateY(-3px); } }
+.resultItemCard { color: var(--text); text-align: left; box-shadow: none; background: white; border: 1px solid var(--line); border-radius: 22px; padding: 16px; }
+.miniPrizeBox { width: 72px; height: 72px; display: grid; place-items: center; border-radius: 16px; background: #fff7ed; color: #c2410c; font-weight: 1000; }
+@media (max-width: 980px) {
+  .homeHeroGrid, .detailHero { grid-template-columns: 1fr; }
+  .heroShowcase { min-height: 420px; }
+  .detailImage, .detailImagePlaceholder { min-height: 320px; }
+}
+@media (max-width: 720px) {
+  .homeHero { padding: 58px 0 42px; }
+  .heroMetricGrid, .detailStats, .kujiMetaGrid { grid-template-columns: 1fr; }
+  .sectionHead { align-items: flex-start; flex-direction: column; }
+  .flowCard { position: static; width: auto; margin: 10px 16px; }
+  .treasureBox { opacity: .28; }
+  .heroShowcase { display: grid; align-content: end; padding-bottom: 14px; }
+  .kujiCardActions, .detailActions { flex-direction: column; }
+}

@@ -11,9 +11,9 @@ export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?
 
   const title = useMemo(() => {
     if (!items.length) return "공개할 결과가 없습니다";
-    if (mode === "ready") return "결과 공개 방식을 선택하세요";
+    if (mode === "ready") return "보물상자를 열어 결과를 확인하세요";
     if (mode === "done" || mode === "all_at_once") return "전체 결과";
-    return `${index + 1}번째 상품 공개`;
+    return `${index + 1}번째 보물 공개`;
   }, [items.length, mode, index]);
 
   async function persistReveal(nextIndex: number) {
@@ -50,7 +50,7 @@ export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?
     <div className="revealStage">
       <section className="revealCard">
         <span className="badge">TAKARA RESULT</span>
-        <h1 style={{ fontSize: "clamp(36px, 7vw, 64px)", marginTop: 18 }}>{title}</h1>
+        <h1 style={{ fontSize: "clamp(34px, 7vw, 62px)", marginTop: 18 }}>{title}</h1>
 
         {!items.length && (
           <div style={{ display: "grid", gap: 12, marginTop: 26 }}>
@@ -60,14 +60,27 @@ export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?
         )}
 
         {mode === "ready" && items.length > 0 && (
-          <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", marginTop: 28 }}>
-            <button className="btn btnPrimary" onClick={openNext}>하나씩 열기</button>
-            <button className="btn btnSecondary" onClick={showAll}>한번에 열기</button>
-          </div>
+          <>
+            <div className="resultTreasure readyChest" aria-hidden="true">
+              <div className="resultLid" />
+              <div className="resultBeam" />
+              <div className="resultBase">TAKARA</div>
+            </div>
+            <p className="revealHint">결과는 보관함에 자동 저장됩니다.</p>
+            <div style={{ display: "flex", justifyContent: "center", gap: 12, flexWrap: "wrap", marginTop: 24 }}>
+              <button className="btn btnPrimary" onClick={openNext}>하나씩 열기</button>
+              <button className="btn btnSecondary" onClick={showAll}>한번에 열기</button>
+            </div>
+          </>
         )}
 
         {mode === "one_by_one" && current && (
           <>
+            <div className="resultTreasure openChest" aria-hidden="true">
+              <div className="resultLid" />
+              <div className="resultBeam" />
+              <div className="resultBase">OPEN</div>
+            </div>
             <div className="glowPrize">
               <div>
                 {current.imageUrl ? <img src={current.imageUrl} alt="" style={{ width: 160, height: 160, objectFit: "cover", borderRadius: 24, marginBottom: 18 }} /> : null}
@@ -90,9 +103,9 @@ export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?
         {(mode === "all_at_once" || mode === "done") && (
           <div style={{ display: "grid", gap: 12, marginTop: 26 }}>
             {items.map((item) => (
-              <div key={`${item.ticketNo}-${item.prizeName}`} className="card" style={{ color: "var(--text)", textAlign: "left", boxShadow: "none" }}>
+              <div key={`${item.ticketNo}-${item.prizeName}`} className="resultItemCard">
                 <div style={{ display: "flex", gap: 14, alignItems: "center" }}>
-                  {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 16 }} /> : null}
+                  {item.imageUrl ? <img src={item.imageUrl} alt="" style={{ width: 72, height: 72, objectFit: "cover", borderRadius: 16 }} /> : <div className="miniPrizeBox">{item.rank}</div>}
                   <div>
                     <strong>{item.rank}상 · {item.prizeName}</strong>
                     <p className="muted" style={{ margin: "6px 0 0" }}>{item.ticketNo}번</p>
