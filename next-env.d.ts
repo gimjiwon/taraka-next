@@ -1,6 +1,39 @@
-/// <reference types="next" />
-/// <reference types="next/image-types/global" />
-import "./.next/types/routes.d.ts";
+export type KujiStatus = "draft" | "active" | "paused" | "ended";
+export type TicketStatus = "available" | "locked" | "sold";
+export type RevealMode = "ready" | "one_by_one" | "all_at_once" | "done";
 
-// NOTE: This file should not be edited
-// see https://nextjs.org/docs/app/api-reference/config/typescript for more information.
+export type Kuji = {
+  id: string;
+  title: string;
+  slug: string;
+  description: string;
+  price: number;
+  totalTickets: number;
+  soldTickets: number;
+  status: KujiStatus;
+  imageUrl?: string | null;
+};
+
+export type Prize = {
+  id: string;
+  kujiId: string;
+  rank: string;
+  name: string;
+  quantity: number;
+  imageUrl?: string | null;
+};
+
+export type Ticket = {
+  id: string;
+  kujiId: string;
+  ticketNo: number;
+  status: TicketStatus;
+  prizeId?: string | null;
+};
+
+export type ResultItem = {
+  ticketNo: number;
+  rank: string;
+  prizeName: string;
+  imageUrl?: string | null;
+};
