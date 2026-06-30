@@ -61,8 +61,3 @@ npm run dev
 이번 버전은 로그인 판정 기준을 `takara_session` 쿠키 하나로 통일했습니다.
 헤더의 로그아웃은 더 이상 `/logout` GET 링크가 아니라 `POST /api/auth/logout` 버튼으로 작동합니다.
 이 변경은 쿠지 페이지 이동 중 의도치 않게 로그아웃되는 문제를 막기 위한 것입니다.
-
-
-## Install fix
-
-This package removes package-lock.json and uses .npmrc to install from the public npm registry on Vercel. Node.js is fixed to 22.x.
