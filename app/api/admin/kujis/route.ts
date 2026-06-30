@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const statusSchema = z.enum(["draft", "active", "paused"]);
 
@@ -53,25 +53,24 @@ function shuffle<T>(items: T[]) {
   return copied;
 }
 
-async function getAdminUserId() {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData.user) {
+async function getAdminUserId(request: NextRequest) {
+  const user = await getRequestUser(request);
+  if (!user) {
     return { error: NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 }) };
   }
 
-  const { data: profile } = await supabase
+  const admin = createSupabaseAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
-    .eq("id", userData.user.id)
-    .single();
+    .eq("id", user.id)
+    .maybeSingle();
 
   if (profile?.role !== "admin") {
     return { error: NextResponse.json({ message: "관리자 권한이 필요합니다." }, { status: 403 }) };
   }
 
-  return { userId: userData.user.id };
+  return { userId: user.id };
 }
 
 async function cleanupKuji(kujiId: string) {
@@ -80,7 +79,7 @@ async function cleanupKuji(kujiId: string) {
 }
 
 export async function POST(request: NextRequest) {
-  const auth = await getAdminUserId();
+  const auth = await getAdminUserId(request);
   if (auth.error) return auth.error;
 
   let payload: unknown;

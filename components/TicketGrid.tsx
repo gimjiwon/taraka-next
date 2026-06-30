@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { Ticket } from "@/types/takara";
 
 export function TicketGrid({ tickets, kujiSlug }: { tickets: Ticket[]; kujiSlug: string }) {
@@ -43,17 +42,10 @@ export function TicketGrid({ tickets, kujiSlug }: { tickets: Ticket[]; kujiSlug:
     setError("");
 
     try {
-      const supabase = createSupabaseBrowserClient();
-      const { data: sessionData } = await supabase.auth.getSession();
-      const accessToken = sessionData.session?.access_token;
-
       const response = await fetch("/api/tickets/reserve", {
         method: "POST",
         credentials: "include",
-        headers: {
-          "Content-Type": "application/json",
-          ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ slug: kujiSlug, ticketNos: selected })
       });
 

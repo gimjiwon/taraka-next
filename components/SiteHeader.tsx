@@ -1,13 +1,14 @@
 import Link from "next/link";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { createSupabaseAdminClient } from "@/lib/supabase-admin";
+import { getCurrentUser } from "@/lib/auth";
+import { LogoutButton } from "@/components/LogoutButton";
 
 export async function SiteHeader() {
-  const supabase = await createSupabaseServerClient();
-  const { data } = await supabase.auth.getUser();
-  const user = data.user;
+  const user = await getCurrentUser();
 
   let role: string | null = null;
   if (user) {
+    const supabase = createSupabaseAdminClient();
     const { data: profile } = await supabase
       .from("profiles")
       .select("role,nickname")
@@ -35,7 +36,7 @@ export async function SiteHeader() {
           {user ? (
             <>
               <Link className="btn btnSecondary" href="/mypage">내 정보</Link>
-              <Link className="btn btnPrimary" href="/logout">로그아웃</Link>
+              <LogoutButton />
             </>
           ) : (
             <>

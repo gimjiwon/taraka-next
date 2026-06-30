@@ -1,19 +1,16 @@
-import { NextRequest } from "next/server";
-import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import type { NextRequest } from "next/server";
+import { getTakaraSessionUserFromCookies, getTakaraSessionUserFromRequest, type TakaraSessionUser } from "@/lib/app-session";
 
-export async function getRequestUser(request?: NextRequest) {
-  const authHeader = request?.headers.get("authorization") ?? "";
-  const token = authHeader.toLowerCase().startsWith("bearer ") ? authHeader.slice(7).trim() : "";
+/**
+ * Single source of truth for login state.
+ *
+ * Do not check Supabase SSR cookies here. Supabase Auth verifies the password
+ * during login, but the site itself uses the signed TAKARA session cookie.
+ */
+export async function getRequestUser(request: NextRequest): Promise<TakaraSessionUser | null> {
+  return getTakaraSessionUserFromRequest(request);
+}
 
-  if (token) {
-    const admin = createSupabaseAdminClient();
-    const { data, error } = await admin.auth.getUser(token);
-    if (!error && data.user) return data.user;
-  }
-
-  const supabase = await createSupabaseServerClient();
-  const { data, error } = await supabase.auth.getUser();
-  if (error || !data.user) return null;
-  return data.user;
+export async function getCurrentUser(): Promise<TakaraSessionUser | null> {
+  return getTakaraSessionUserFromCookies();
 }

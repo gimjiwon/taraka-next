@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { ResultReveal } from "@/components/ResultReveal";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { PaymentOrderSummary } from "@/lib/orders";
 import type { ResultItem } from "@/types/takara";
 
@@ -17,20 +16,12 @@ export function ResultPageClient({ orderId, expectedSlug }: { orderId: string; e
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  async function getAuthHeaders(): Promise<Record<string, string>> {
-    const supabase = createSupabaseBrowserClient();
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {};
-  }
-
   async function loadResult() {
     setLoading(true);
     setError("");
     try {
-      const authHeaders = await getAuthHeaders();
       const response = await fetch(`/api/orders/result?order=${encodeURIComponent(orderId)}`, {
-        credentials: "include",
-        headers: authHeaders
+        credentials: "include"
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.message ?? "결과를 불러오지 못했습니다.");

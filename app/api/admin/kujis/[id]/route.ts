@@ -1,35 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
+import { getRequestUser } from "@/lib/auth";
 
 const updateSchema = z.object({
   status: z.enum(["draft", "active", "paused", "ended"])
 });
 
-async function getAdminUserId() {
-  const supabase = await createSupabaseServerClient();
-  const { data: userData, error: userError } = await supabase.auth.getUser();
-
-  if (userError || !userData.user) {
+async function getAdminUserId(request: NextRequest) {
+  const user = await getRequestUser(request);
+  if (!user) {
     return { error: NextResponse.json({ message: "로그인이 필요합니다." }, { status: 401 }) };
   }
 
-  const { data: profile } = await supabase
+  const admin = createSupabaseAdminClient();
+  const { data: profile } = await admin
     .from("profiles")
     .select("role")
-    .eq("id", userData.user.id)
-    .single();
+    .eq("id", user.id)
+    .maybeSingle();
 
   if (profile?.role !== "admin") {
     return { error: NextResponse.json({ message: "관리자 권한이 필요합니다." }, { status: 403 }) };
   }
 
-  return { userId: userData.user.id };
+  return { userId: user.id };
 }
 
 export async function PATCH(request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const auth = await getAdminUserId();
+  const auth = await getAdminUserId(request);
   if (auth.error) return auth.error;
 
   const { id } = await context.params;
@@ -58,8 +57,8 @@ export async function PATCH(request: NextRequest, context: { params: Promise<{ i
   return NextResponse.json({ message: "상태가 변경되었습니다." });
 }
 
-export async function DELETE(_request: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const auth = await getAdminUserId();
+export async function DELETE(request: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const auth = await getAdminUserId(request);
   if (auth.error) return auth.error;
 
   const { id } = await context.params;

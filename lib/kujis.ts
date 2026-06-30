@@ -1,5 +1,4 @@
 import { createSupabaseAdminClient } from "@/lib/supabase-admin";
-import { createSupabaseServerClient } from "@/lib/supabase-server";
 import type { Kuji, KujiStatus, Ticket, TicketStatus } from "@/types/takara";
 
 type KujiRow = {
@@ -54,7 +53,7 @@ function toTicket(row: TicketRow): Ticket {
 async function getSoldCounts(kujiIds: string[]) {
   if (!kujiIds.length) return new Map<string, number>();
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data } = await supabase
     .from("kuji_tickets")
     .select("kuji_id")
@@ -70,7 +69,7 @@ async function getSoldCounts(kujiIds: string[]) {
 }
 
 export async function getActiveKujis() {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("kujis")
     .select("id, slug, title, description, price, total_tickets, status, image_url")
@@ -84,7 +83,7 @@ export async function getActiveKujis() {
 }
 
 export async function getActiveKujiBySlug(slug: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data, error } = await supabase
     .from("kujis")
     .select("id, slug, title, description, price, total_tickets, status, image_url, last_one_prize_name")
@@ -105,7 +104,7 @@ export async function getActiveKujiWithTickets(slug: string) {
   const result = await getActiveKujiBySlug(slug);
   if (!result) return null;
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
   const { data } = await supabase
     .from("kuji_tickets")
     .select("id, kuji_id, ticket_no, status, prize_id")

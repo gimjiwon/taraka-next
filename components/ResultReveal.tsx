@@ -1,7 +1,6 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import type { ResultItem, RevealMode } from "@/types/takara";
 
 export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?: string }) {
@@ -19,16 +18,11 @@ export function ResultReveal({ items, orderId }: { items: ResultItem[]; orderId?
 
   async function persistReveal(nextIndex: number) {
     if (!orderId) return;
-    const supabase = createSupabaseBrowserClient();
-    const { data } = await supabase.auth.getSession();
-    const accessToken = data.session?.access_token;
-
     await fetch("/api/result/reveal", {
       method: "POST",
       credentials: "include",
       headers: {
-        "Content-Type": "application/json",
-        ...(accessToken ? { Authorization: `Bearer ${accessToken}` } : {})
+        "Content-Type": "application/json"
       },
       body: JSON.stringify({ orderId, revealedIndex: nextIndex })
     }).catch(() => null);

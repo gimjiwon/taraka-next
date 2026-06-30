@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { createSupabaseBrowserClient } from "@/lib/supabase-browser";
 import { DeadlineTimer } from "@/components/DeadlineTimer";
 import { formatWon } from "@/lib/format";
 import type { PaymentOrderSummary } from "@/lib/orders";
@@ -14,20 +13,12 @@ export function PaymentClient({ orderId, expectedSlug }: { orderId: string; expe
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
 
-  async function getAuthHeaders(): Promise<Record<string, string>> {
-    const supabase = createSupabaseBrowserClient();
-    const { data } = await supabase.auth.getSession();
-    return data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {};
-  }
-
   async function loadOrder() {
     setLoadingOrder(true);
     setError("");
     try {
-      const authHeaders = await getAuthHeaders();
       const response = await fetch(`/api/orders/summary?order=${encodeURIComponent(orderId)}`, {
-        credentials: "include",
-        headers: authHeaders
+        credentials: "include"
       });
       const result = await response.json();
       if (!response.ok || !result.ok) throw new Error(result.message ?? "주문을 불러오지 못했습니다.");
@@ -51,11 +42,10 @@ export function PaymentClient({ orderId, expectedSlug }: { orderId: string; expe
     setError("");
 
     try {
-      const authHeaders = await getAuthHeaders();
       const response = await fetch("/api/payment/complete", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id })
       });
 
@@ -78,11 +68,10 @@ export function PaymentClient({ orderId, expectedSlug }: { orderId: string; expe
     setError("");
 
     try {
-      const authHeaders = await getAuthHeaders();
       const response = await fetch("/api/tickets/release", {
         method: "POST",
         credentials: "include",
-        headers: { "Content-Type": "application/json", ...authHeaders },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ orderId: order.id })
       });
       const result = await response.json();
