@@ -1,0 +1,6 @@
+TAKARA clean upload guide
+
+Recommended: delete all existing files in the GitHub repository, then upload the contents of this ZIP.
+If deleting is difficult, upload this ZIP contents over the current repository. This ZIP includes safe placeholder root .ts files to overwrite stale broken files such as auth.ts and mock-data.ts.
+
+Do not upload the outer folder itself. Upload the contents inside it.
