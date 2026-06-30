@@ -69,6 +69,8 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const [mainImageUploading, setMainImageUploading] = useState(false);
+  const [prizeImageUploadingIndex, setPrizeImageUploadingIndex] = useState<number | null>(null);
 
   const prizeQuantityTotal = useMemo(
     () => prizes.reduce((sum, prize) => sum + Number(prize.quantity || 0), 0),
@@ -97,6 +99,68 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
     setLastOnePrizeName("");
     setImageUrl("");
     setPrizes(defaultPrizes);
+  }
+
+  async function uploadImage(file: File, folder: string) {
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("folder", folder);
+
+    const response = await fetch("/api/admin/uploads", {
+      method: "POST",
+      body: formData
+    });
+
+    const result = await response.json();
+    if (!response.ok) {
+      throw new Error(result.message ?? "이미지 업로드에 실패했습니다.");
+    }
+
+    if (!result.url || typeof result.url !== "string") {
+      throw new Error("업로드된 이미지 주소를 받지 못했습니다.");
+    }
+
+    return result.url;
+  }
+
+  async function handleMainImageChange(event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setMessage("");
+    setError("");
+    setMainImageUploading(true);
+
+    try {
+      const uploadedUrl = await uploadImage(file, "kuji-main");
+      setImageUrl(uploadedUrl);
+      setMessage("대표 이미지가 업로드되었습니다.");
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "대표 이미지 업로드에 실패했습니다.");
+    } finally {
+      setMainImageUploading(false);
+      event.target.value = "";
+    }
+  }
+
+  async function handlePrizeImageChange(index: number, event: React.ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    setMessage("");
+    setError("");
+    setPrizeImageUploadingIndex(index);
+
+    try {
+      const uploadedUrl = await uploadImage(file, "prize");
+      updatePrize(index, "imageUrl", uploadedUrl);
+      setMessage(`${prizes[index]?.rank || index + 1}상 이미지가 업로드되었습니다.`);
+    } catch (uploadError) {
+      setError(uploadError instanceof Error ? uploadError.message : "상품 이미지 업로드에 실패했습니다.");
+    } finally {
+      setPrizeImageUploadingIndex(null);
+      event.target.value = "";
+    }
   }
 
   async function submitKuji(event: React.FormEvent<HTMLFormElement>) {
@@ -230,9 +294,22 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
             </div>
           </div>
 
-          <div className="field">
-            <label>대표 이미지 URL</label>
-            <input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="https://..." />
+          <div className="card uploadCard" style={{ boxShadow: "none" }}>
+            <div className="field">
+              <label>대표 이미지 업로드</label>
+              <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={handleMainImageChange} disabled={mainImageUploading} />
+              <p className="muted" style={{ margin: 0 }}>JPG, PNG, WEBP, GIF / 최대 5MB. 업로드하면 아래 이미지 주소가 자동 입력됩니다.</p>
+            </div>
+            <div className="grid2">
+              <div className="field">
+                <label>대표 이미지 주소</label>
+                <input value={imageUrl} onChange={(event) => setImageUrl(event.target.value)} placeholder="이미지 업로드 후 자동 입력 또는 직접 URL 입력" />
+              </div>
+              <div>
+                {imageUrl ? <img src={imageUrl} alt="대표 이미지 미리보기" className="uploadPreview" /> : <div className="uploadPlaceholder">대표 이미지 미리보기</div>}
+              </div>
+            </div>
+            {mainImageUploading ? <p className="noticeText">대표 이미지 업로드 중...</p> : null}
           </div>
 
           <div className="field">
@@ -251,7 +328,7 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
 
             <div className="adminPrizeRows">
               {prizes.map((prize, index) => (
-                <div className="adminPrizeRow" key={`${index}-${prize.rank}`}>
+                <div className="adminPrizeRow adminPrizeRowWithImage" key={`${index}-${prize.rank}`}>
                   <div className="field">
                     <label>등급</label>
                     <input value={prize.rank} onChange={(event) => updatePrize(index, "rank", event.target.value)} placeholder="A" required />
@@ -265,8 +342,13 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
                     <input type="number" min="1" value={prize.quantity} onChange={(event) => updatePrize(index, "quantity", Number(event.target.value))} required />
                   </div>
                   <div className="field">
-                    <label>이미지 URL</label>
-                    <input value={prize.imageUrl} onChange={(event) => updatePrize(index, "imageUrl", event.target.value)} placeholder="선택" />
+                    <label>상품 이미지</label>
+                    <input type="file" accept="image/jpeg,image/png,image/webp,image/gif" onChange={(event) => handlePrizeImageChange(index, event)} disabled={prizeImageUploadingIndex === index} />
+                    <input value={prize.imageUrl} onChange={(event) => updatePrize(index, "imageUrl", event.target.value)} placeholder="업로드 후 자동 입력 또는 직접 URL" />
+                  </div>
+                  <div className="adminPrizePreviewBox">
+                    {prize.imageUrl ? <img src={prize.imageUrl} alt="상품 이미지 미리보기" className="adminPrizePreview" /> : <span className="muted">미리보기</span>}
+                    {prizeImageUploadingIndex === index ? <small>업로드 중...</small> : null}
                   </div>
                   <button className="btn btnDanger" type="button" onClick={() => removePrizeRow(index)} disabled={prizes.length <= 1}>삭제</button>
                 </div>
@@ -274,7 +356,7 @@ export function KujiAdminClient({ initialKujis }: { initialKujis: AdminKujiRow[]
             </div>
           </div>
 
-          <button className="btn btnPrimary" type="submit" disabled={loading}>
+          <button className="btn btnPrimary" type="submit" disabled={loading || mainImageUploading || prizeImageUploadingIndex !== null}>
             {loading ? "등록 중..." : "쿠지 등록 + 번호 자동 생성"}
           </button>
         </form>

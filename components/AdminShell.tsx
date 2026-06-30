@@ -12,8 +12,7 @@ export function AdminShell({ children }: { children: React.ReactNode }) {
         <nav className="sideNav">
           <Link href="/admin">대시보드</Link>
           <Link href="/admin/kuji">쿠지 등록/관리</Link>
-          <Link href="/admin/orders">주문 관리</Link>
-          <Link href="/admin/shipping">배송 관리</Link>
+          <Link href="/admin/orders">주문·배송</Link>
           <Link href="/admin/members">회원 관리</Link>
           <Link href="/admin/logs">운영 로그</Link>
           <Link href="/">고객 화면</Link>
