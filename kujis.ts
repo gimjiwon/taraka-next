@@ -1,11 +1,3 @@
-export function formatWon(value: number) {
-  return new Intl.NumberFormat("ko-KR", {
-    style: "currency",
-    currency: "KRW",
-    maximumFractionDigits: 0
-  }).format(value);
-}
-
-export function formatTicketCount(value: number) {
-  return `${new Intl.NumberFormat("ko-KR").format(value)}장`;
-}
+// Placeholder file to neutralize stale root-level TypeScript files from older uploads.
+// Real source files live under ./lib or ./app.
+export {};
