@@ -1,13 +1,11 @@
 import Link from "next/link";
 import { SiteHeader } from "@/components/SiteHeader";
 import { KujiCard } from "@/components/KujiCard";
-import { formatTicketCount } from "@/lib/format";
 import { getActiveKujis } from "@/lib/kujis";
 
 export default async function HomePage() {
   const activeKujis = await getActiveKujis();
   const featuredKujis = activeKujis.slice(0, 3);
-  const totalRemaining = activeKujis.reduce((sum, kuji) => sum + Math.max(kuji.totalTickets - kuji.soldTickets, 0), 0);
 
   return (
     <>
@@ -35,12 +33,12 @@ export default async function HomePage() {
                   <span>진행중 쿠지</span>
                 </div>
                 <div>
-                  <strong>{formatTicketCount(totalRemaining)}</strong>
-                  <span>남은 티켓</span>
+                  <strong>직접 선택</strong>
+                  <span>원하는 번호를 직접 고를 수 있어요</span>
                 </div>
                 <div>
-                  <strong>배송</strong>
-                  <span>보관함 합배송</span>
+                  <strong>즉시 결과</strong>
+                  <span>결제 후 바로 결과를 확인할 수 있어요</span>
                 </div>
               </div>
             </div>

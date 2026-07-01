@@ -204,8 +204,8 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
   background: rgba(255,255,255,.78);
   box-shadow: 0 12px 30px rgba(31,41,55,.06);
 }
-.heroMetricGrid strong { display: block; font-size: 28px; font-weight: 1000; letter-spacing: -.06em; color: var(--dark); }
-.heroMetricGrid span { display: block; margin-top: 6px; color: var(--muted); font-weight: 900; font-size: 13px; }
+.heroMetricGrid strong { display: block; font-size: clamp(22px, 2.4vw, 28px); font-weight: 1000; letter-spacing: -.05em; color: var(--dark); line-height: 1.12; }
+.heroMetricGrid span { display: block; margin-top: 8px; color: var(--muted); font-weight: 900; font-size: 13px; line-height: 1.45; }
 .heroShowcase {
   position: relative;
   min-height: 480px;
@@ -228,23 +228,23 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 .treasureLight {
   position: absolute;
   left: 50%;
-  top: 18%;
-  width: 240px;
-  height: 240px;
+  top: 42%;
+  width: 260px;
+  height: 210px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,255,255,.94), rgba(251,191,36,.28) 42%, transparent 68%);
-  filter: blur(2px);
+  background: radial-gradient(circle at 50% 72%, rgba(255,255,255,.96) 0%, rgba(255,240,170,.72) 22%, rgba(251,191,36,.34) 38%, transparent 64%);
+  filter: blur(4px);
   animation: pulseGlow 2.8s ease-in-out infinite;
 }
 .treasureLid {
   position: absolute;
   left: 50%;
-  top: 44px;
-  width: 240px;
-  height: 92px;
-  transform: translateX(-50%) rotate(-8deg);
-  transform-origin: bottom left;
-  border-radius: 90px 90px 26px 26px;
+  top: 34px;
+  width: 258px;
+  height: 98px;
+  transform: translateX(-50%) rotate(-5deg);
+  transform-origin: 50% 100%;
+  border-radius: 96px 96px 26px 26px;
   background: linear-gradient(135deg, #f97316, #fbbf24);
   border: 4px solid #7c2d12;
   box-shadow: 0 18px 24px rgba(124,45,18,.18);
@@ -252,9 +252,9 @@ th { background: #fff7ed; color: #9a3412; font-size: 13px; font-weight: 1000; }
 .treasureBase {
   position: absolute;
   left: 50%;
-  bottom: 34px;
-  width: 280px;
-  height: 112px;
+  bottom: 32px;
+  width: 288px;
+  height: 116px;
   transform: translateX(-50%);
   display: grid;
   place-items: center;
@@ -359,7 +359,7 @@ body {
   font-family: "Pretendard Variable", "Pretendard", "SUIT Variable", "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
-h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTitle {
+h1, h2, h3, .logo, .homeHeroCopy .eyebrow, .heroMetricGrid strong, .flowCard strong, .treasureBase, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTitle, .resultBase span {
   font-family: "Pretendard Variable", "Pretendard", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
 }
 
@@ -468,13 +468,13 @@ h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTi
 .resultAura {
   position: absolute;
   left: 50%;
-  top: 24%;
-  width: 260px;
-  height: 260px;
+  top: 40%;
+  width: 280px;
+  height: 220px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(255,255,255,.84), rgba(255,226,133,.34) 38%, transparent 68%);
-  filter: blur(16px);
-  opacity: .8;
+  background: radial-gradient(circle at 50% 74%, rgba(255,255,255,.88), rgba(255,226,133,.38) 32%, transparent 64%);
+  filter: blur(18px);
+  opacity: .82;
 }
 .resultSparkles {
   position: absolute;
@@ -497,20 +497,22 @@ h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTi
 .resultSparkles span:nth-child(5) { left: 48%; top: 4%; animation-delay: 1.8s; }
 .resultSparkles.intense span:nth-child(6) { left: 58%; top: 18%; animation-delay: 2.1s; }
 .resultBeam {
-  top: 30%;
-  width: 250px;
-  height: 250px;
-  background: radial-gradient(circle, rgba(255,255,255,.96), rgba(251,191,36,.46) 36%, rgba(255,255,255,.05) 72%, transparent 76%);
+  z-index: 1;
+  top: 43%;
+  width: 260px;
+  height: 210px;
+  background: radial-gradient(circle at 50% 76%, rgba(255,255,255,.98) 0%, rgba(255,240,175,.86) 18%, rgba(251,191,36,.42) 34%, rgba(255,255,255,.08) 54%, transparent 68%);
+  filter: blur(2px);
 }
 .resultBeam.bright {
   animation-duration: 1.2s;
   filter: saturate(1.18);
 }
 .resultLid {
-  top: 64px;
-  width: 232px;
-  height: 86px;
-  border-radius: 88px 88px 22px 22px;
+  top: 50px;
+  width: 250px;
+  height: 92px;
+  border-radius: 92px 92px 24px 24px;
   border: 4px solid #5b2b0c;
   background:
     linear-gradient(180deg, #ffcc67 0%, #ff9e2c 44%, #bb5b14 100%);
@@ -520,7 +522,7 @@ h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTi
   position: absolute;
   z-index: 4;
   left: 50%;
-  top: 124px;
+  top: 116px;
   width: 28px;
   height: 36px;
   transform: translateX(-50%);
@@ -531,8 +533,8 @@ h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTi
 }
 .resultBase {
   bottom: 22px;
-  width: 268px;
-  height: 106px;
+  width: 282px;
+  height: 112px;
   padding-top: 8px;
   border-radius: 24px 24px 38px 38px;
   border: 4px solid #5b2b0c;
@@ -695,11 +697,11 @@ h1, h2, h3, .logo, .resultTitle, .prizeNameLarge, .rankBadgeLarge, .resultItemTi
 }
 @keyframes chestLuxOpen {
   from { transform: translateX(-50%) rotate(0deg); }
-  to { transform: translateX(-50%) rotate(-32deg) translateY(-18px); }
+  to { transform: translateX(-50%) rotate(-18deg) translateY(-14px); }
 }
 @keyframes chestLuxIdle {
   0%, 100% { transform: translateX(-50%) rotate(0deg) translateY(0); }
-  50% { transform: translateX(-50%) rotate(-4deg) translateY(-4px); }
+  50% { transform: translateX(-50%) rotate(-2deg) translateY(-3px); }
 }
 @keyframes glowBurst {
   from { opacity: .25; transform: scale(.9); }
