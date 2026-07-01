@@ -31,8 +31,8 @@ export function KujiCard({ kuji }: { kuji: Kuji }) {
           <div><span>남은 수량</span><strong>{formatTicketCount(remaining)}</strong></div>
         </div>
         <div className="kujiCardActions">
-          <Link className="btn btnPrimary" href={`/kuji/${kuji.slug}`}>상세보기</Link>
-          <Link className="btn btnSecondary" href={`/kuji/${kuji.slug}/queue`}>입장하기</Link>
+          <Link className="btn btnSecondary" href={`/kuji/${kuji.slug}`}>상세보기</Link>
+          <Link className="btn btnPrimary" href={`/kuji/${kuji.slug}/queue`}>입장하기</Link>
         </div>
       </div>
     </article>
